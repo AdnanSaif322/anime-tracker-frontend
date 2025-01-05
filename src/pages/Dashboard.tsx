@@ -6,7 +6,6 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { AnimeCard } from "../components/AnimeCard";
 import Swal from "sweetalert2";
-import { AnimeFilter } from "../components/AnimeFilter";
 import { AnimeDetailsModal } from "../components/AnimeDetailsModal";
 import { API_URL } from "../config";
 import { logger } from "../utils/logger";
@@ -25,7 +24,6 @@ const Dashboard = () => {
     type: "success" | "error";
     message: string;
   } | null>(null);
-  const [filteredAnimeList, setFilteredAnimeList] = useState<AnimeItem[]>([]);
   const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,14 +75,6 @@ const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [notification]);
-
-  useEffect(() => {
-    setFilteredAnimeList(animeList);
-  }, [animeList]);
-
-  useEffect(() => {
-    console.log("Filtered anime list updated:", filteredAnimeList);
-  }, [filteredAnimeList]);
 
   const handleAnimeSelect = async (animeData: any) => {
     try {
@@ -236,35 +226,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleFilterChange = (filters: {
-    rating: number;
-    genres: string[];
-    status: string;
-  }) => {
-    let filtered = [...animeList];
-
-    // Filter by rating
-    if (filters.rating > 0) {
-      filtered = filtered.filter(
-        (anime) => (anime.vote_average || 0) >= filters.rating
-      );
-    }
-
-    // Filter by status
-    if (filters.status) {
-      filtered = filtered.filter((anime) => anime.status === filters.status);
-    }
-
-    // Filter by genres
-    if (filters.genres.length > 0) {
-      filtered = filtered.filter((anime) =>
-        filters.genres.some((genre) => anime.genres.includes(genre))
-      );
-    }
-
-    setFilteredAnimeList(filtered);
-  };
-
   const updateStatus = async (animeId: string, newStatus: AnimeStatus) => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_URL}/anime/status/${animeId}`, {
@@ -318,7 +279,6 @@ const Dashboard = () => {
             )}
           </div>
           <div className="flex items-center gap-4">
-            <AnimeFilter onFilterChange={handleFilterChange} />
             <div className="w-64">
               <AnimeSearch onSelect={handleAnimeSelect} />
             </div>
@@ -340,7 +300,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {filteredAnimeList.map((anime) => (
+            {animeList.map((anime) => (
               <AnimeCard
                 key={anime.id}
                 anime={anime}
