@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [filteredAnimeList, setFilteredAnimeList] = useState<AnimeItem[]>([]);
   const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
