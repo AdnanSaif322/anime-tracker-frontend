@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { AnimeFilter } from "../components/AnimeFilter";
 import { AnimeDetailsModal } from "../components/AnimeDetailsModal";
 import { API_URL } from "../config";
+import { logger } from "../utils/logger";
 
 interface DecodedToken {
   email: string;
@@ -38,23 +39,33 @@ const Dashboard = () => {
       return;
     }
 
-    fetch(`${API_URL}/auth/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        return res.json();
-      })
-      .then((data) => {
+    const fetchProfile = async () => {
+      try {
+        logger.info("Fetching profile", { url: `${API_URL}/auth/profile` });
+
+        const response = await fetch(`${API_URL}/auth/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          logger.error("Profile fetch failed", { status: response.status });
+          throw new Error("Failed to fetch profile");
+        }
+
+        const data = await response.json();
+        logger.info("Profile data received", data);
         setUsername(data.username);
-        return fetchAnimeList(); // Chain the anime list fetch
-      })
-      .catch((error) => {
-        console.error("Error:", error);
+        await fetchAnimeList();
+      } catch (error) {
+        logger.error("Profile fetch error", error);
         navigate("/login");
-      });
+      }
+    };
+
+    fetchProfile();
   }, [navigate]);
 
   useEffect(() => {
@@ -126,8 +137,8 @@ const Dashboard = () => {
   const fetchAnimeList = async (pageNum?: number) => {
     try {
       const token = localStorage.getItem("token");
-      console.log("Fetching with URL:", `${API_URL}/anime/list`);
-      console.log("Token:", token?.substring(0, 20) + "...");
+      logger.info("Fetching anime list", { url: `${API_URL}/anime/list` });
+      logger.info("Token:", token?.substring(0, 20) + "...");
 
       const response = await fetch(`${API_URL}/anime/list`, {
         headers: {
@@ -138,7 +149,7 @@ const Dashboard = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Response not OK:", {
+        logger.error("Response not OK:", {
           status: response.status,
           error: errorData,
         });
@@ -146,10 +157,10 @@ const Dashboard = () => {
       }
 
       const data = await response.json();
-      console.log("Anime list data:", data);
+      logger.info("Anime list data:", data);
       setAnimeList(data);
     } catch (error) {
-      console.error("Fetch error:", error);
+      logger.error("Fetch error:", error);
       setError("Failed to load anime list");
     }
   };
