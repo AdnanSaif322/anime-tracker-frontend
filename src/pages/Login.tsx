@@ -18,6 +18,7 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -27,22 +28,9 @@ export default function Login() {
         throw new Error(data.error || "Failed to login");
       }
 
-      if (!data.token) {
-        throw new Error("No token received");
-      }
-
-      // Decode and validate token first
-      const decoded = jwtDecode(data.token);
-      logger.info("Login successful", {
-        token: data.token.substring(0, 20) + "...",
-        user: decoded,
-      });
-
-      // Store token only after validation
-      localStorage.setItem("token", data.token);
+      // Token is automatically handled by cookies
       navigate("/dashboard");
     } catch (error) {
-      console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Failed to login");
     }
   };

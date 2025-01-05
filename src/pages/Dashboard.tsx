@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { AnimeDetailsModal } from "../components/AnimeDetailsModal";
 import { API_URL } from "../config";
 import { logger } from "../utils/logger";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 interface DecodedToken {
   email: string;
@@ -132,30 +133,16 @@ const Dashboard = () => {
     }
   };
 
-  const fetchAnimeList = async (pageNum?: number) => {
+  const fetchAnimeList = async () => {
     try {
-      const token = localStorage.getItem("token");
-      logger.info("Fetching anime list", { url: `${API_URL}/anime/list` });
-      logger.info("Token:", token?.substring(0, 20) + "...");
-
-      const response = await fetch(`${API_URL}/anime/list`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetchWithAuth("/anime/list");
 
       if (!response.ok) {
         const errorData = await response.json();
-        logger.error("Response not OK:", {
-          status: response.status,
-          error: errorData,
-        });
         throw new Error(errorData.error || "Failed to fetch anime list");
       }
 
       const data = await response.json();
-      logger.info("Anime list data:", data);
       setAnimeList(data);
     } catch (error) {
       logger.error("Fetch error:", error);
@@ -163,9 +150,21 @@ const Dashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
+      navigate("/");
+    } catch (error) {
+      logger.error("Logout error:", error);
+    }
   };
 
   const handleDeleteAnime = async (animeId: string) => {
