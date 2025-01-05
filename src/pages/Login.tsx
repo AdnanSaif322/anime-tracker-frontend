@@ -11,16 +11,17 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Attempting login with:", { email });
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
+      console.log("Login response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
@@ -29,6 +30,7 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       navigate("/dashboard");
     } catch (error) {
+      console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Failed to login");
     }
   };
