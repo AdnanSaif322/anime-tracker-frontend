@@ -8,6 +8,7 @@ import { AnimeCard } from "../components/AnimeCard";
 import Swal from "sweetalert2";
 import { AnimeFilter } from "../components/AnimeFilter";
 import { AnimeDetailsModal } from "../components/AnimeDetailsModal";
+import { API_URL } from "../config";
 
 interface DecodedToken {
   email: string;
@@ -36,7 +37,7 @@ const Dashboard = () => {
       return;
     }
 
-    fetch("http://localhost:3001/auth/profile", {
+    fetch(`${API_URL}/auth/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -84,7 +85,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:3001/anime/add", {
+      const response = await fetch(`${API_URL}/anime/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +131,7 @@ const Dashboard = () => {
       );
 
       const response = await fetch(
-        `http://localhost:3001/anime/list?page=${pageNum || 1}`,
+        `${API_URL}/anime/list?page=${pageNum || 1}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -178,15 +179,12 @@ const Dashboard = () => {
     if (result.isConfirmed) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          `http://localhost:3001/anime/delete/${animeId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${API_URL}/anime/delete/${animeId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error("Failed to delete anime");
@@ -264,17 +262,14 @@ const Dashboard = () => {
 
   const updateStatus = async (animeId: string, newStatus: AnimeStatus) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(
-      `http://localhost:3001/anime/status/${animeId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      }
-    );
+    const response = await fetch(`${API_URL}/anime/status/${animeId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to update status");
