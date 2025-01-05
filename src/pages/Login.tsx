@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import { logger } from "../utils/logger";
+import { jwtDecode } from "jwt-decode";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,7 +13,6 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      console.log("Attempting login with:", { email });
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
@@ -22,22 +22,25 @@ export default function Login() {
       });
 
       const data = await response.json();
-      logger.info("Login response token", {
-        token: data.token.substring(0, 20) + "...",
-      });
-      console.log("Login response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
       }
 
-      if (data.token) {
-        console.log("Setting token:", data.token.substring(0, 20) + "...");
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard");
-      } else {
-        console.error("No token in response");
+      if (!data.token) {
+        throw new Error("No token received");
       }
+
+      // Decode and validate token first
+      const decoded = jwtDecode(data.token);
+      logger.info("Login successful", {
+        token: data.token.substring(0, 20) + "...",
+        user: decoded,
+      });
+
+      // Store token only after validation
+      localStorage.setItem("token", data.token);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Failed to login");
