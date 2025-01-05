@@ -8,17 +8,21 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -28,10 +32,12 @@ export default function Login() {
         throw new Error(data.error || "Failed to login");
       }
 
-      // Token is automatically handled by cookies
+      // Success - redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to login");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,9 +114,10 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200 disabled:opacity-50"
             >
-              Log in
+              {loading ? "Logging in..." : "Log in"}
             </button>
           </div>
 
