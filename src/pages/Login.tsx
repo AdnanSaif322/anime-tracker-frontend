@@ -27,8 +27,13 @@ export default function Login() {
         throw new Error(data.error || "Failed to login");
       }
 
-      localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      if (data.token) {
+        console.log("Setting token:", data.token.substring(0, 20) + "...");
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard");
+      } else {
+        console.error("No token in response");
+      }
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Failed to login");
