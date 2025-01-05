@@ -11,15 +11,20 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3001/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, username }),
-      });
+      console.log("Attempting registration...");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password, username }),
+        }
+      );
 
       const data = await response.json();
+      console.log("Registration response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to register");
@@ -27,6 +32,7 @@ export default function Register() {
 
       navigate("/login");
     } catch (error) {
+      console.error("Registration error:", error);
       setError(error instanceof Error ? error.message : "Failed to register");
     }
   };
