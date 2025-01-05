@@ -80,12 +80,19 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setNotification({
-          type: "error",
-          message: "Please login to add anime",
-        });
+        logger.error("No token found");
         return;
       }
+
+      // Log the exact request details
+      logger.info("Adding anime request", {
+        url: `${API_URL}/anime/add`,
+        token: token.substring(0, 20) + "...",
+        animeData: {
+          title: animeData.title,
+          mal_id: animeData.mal_id,
+        },
+      });
 
       const response = await fetch(`${API_URL}/anime/add`, {
         method: "POST",
@@ -104,6 +111,7 @@ const Dashboard = () => {
       });
 
       const data = await response.json();
+      logger.info("Anime added successfully", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to add anime");

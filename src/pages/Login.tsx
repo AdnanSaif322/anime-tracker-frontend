@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
+import { logger } from "../utils/logger";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,6 +22,9 @@ export default function Login() {
       });
 
       const data = await response.json();
+      logger.info("Login response token", {
+        token: data.token.substring(0, 20) + "...",
+      });
       console.log("Login response:", data);
 
       if (!response.ok) {
