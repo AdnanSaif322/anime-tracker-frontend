@@ -39,19 +39,28 @@ export default function Login() {
           "set-cookie": response.headers.get("set-cookie"),
           "content-type": response.headers.get("content-type"),
         },
+        data: data,
       });
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
       }
 
-      // Check if cookie was set
-      logger.info("Cookies after login", {
-        cookies: document.cookie,
+      // Try to verify auth immediately
+      const verifyResponse = await fetch(`${API_URL}/auth/profile`, {
+        credentials: "include",
       });
 
-      // Success - redirect to dashboard
-      navigate("/dashboard");
+      logger.info("Verify auth response:", {
+        status: verifyResponse.status,
+        ok: verifyResponse.ok,
+      });
+
+      if (verifyResponse.ok) {
+        navigate("/dashboard");
+      } else {
+        throw new Error("Authentication verification failed");
+      }
     } catch (error) {
       logger.error("Login error", error);
       setError(error instanceof Error ? error.message : "Failed to login");
