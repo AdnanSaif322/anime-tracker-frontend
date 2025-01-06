@@ -17,6 +17,11 @@ export default function Login() {
     setError(null);
 
     try {
+      logger.info("Login attempt", {
+        url: `${API_URL}/auth/login`,
+        email,
+      });
+
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         credentials: "include",
@@ -27,14 +32,28 @@ export default function Login() {
       });
 
       const data = await response.json();
+      logger.info("Login response", {
+        status: response.status,
+        ok: response.ok,
+        headers: {
+          "set-cookie": response.headers.get("set-cookie"),
+          "content-type": response.headers.get("content-type"),
+        },
+      });
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
       }
 
+      // Check if cookie was set
+      logger.info("Cookies after login", {
+        cookies: document.cookie,
+      });
+
       // Success - redirect to dashboard
       navigate("/dashboard");
     } catch (error) {
+      logger.error("Login error", error);
       setError(error instanceof Error ? error.message : "Failed to login");
     } finally {
       setLoading(false);
