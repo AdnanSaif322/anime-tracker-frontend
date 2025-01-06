@@ -17,11 +17,6 @@ export default function Login() {
     setError(null);
 
     try {
-      logger.info("Login attempt", {
-        url: `${API_URL}/auth/login`,
-        email,
-      });
-
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         credentials: "include",
@@ -31,44 +26,18 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      // Log all response headers
-      const allHeaders: Record<string, string> = {};
-      response.headers.forEach((value, key) => {
-        allHeaders[key] = value;
-      });
-
-      logger.info("Complete response headers:", allHeaders);
-
       const data = await response.json();
-      logger.info("Login response", {
-        status: response.status,
-        ok: response.ok,
-        headers: {
-          "set-cookie": response.headers.get("set-cookie"),
-          "content-type": response.headers.get("content-type"),
-        },
-        data: data,
-      });
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
       }
 
-      // Try to verify auth immediately
-      const verifyResponse = await fetch(`${API_URL}/auth/profile`, {
-        credentials: "include",
-      });
-
-      logger.info("Verify auth response:", {
-        status: verifyResponse.status,
-        ok: verifyResponse.ok,
-      });
-
-      if (verifyResponse.ok) {
-        navigate("/dashboard");
-      } else {
-        throw new Error("Authentication verification failed");
+      // Store token in localStorage as fallback
+      if (data.token) {
+        localStorage.setItem("auth_token", data.token);
       }
+
+      navigate("/dashboard");
     } catch (error) {
       logger.error("Login error", error);
       setError(error instanceof Error ? error.message : "Failed to login");
