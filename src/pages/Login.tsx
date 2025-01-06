@@ -31,6 +31,14 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
+      // Log all response headers
+      const allHeaders: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        allHeaders[key] = value;
+      });
+
+      logger.info("Complete response headers:", allHeaders);
+
       const data = await response.json();
       logger.info("Login response", {
         status: response.status,
