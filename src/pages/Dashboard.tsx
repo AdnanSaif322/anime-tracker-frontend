@@ -44,6 +44,7 @@ const Dashboard = () => {
         await fetchAnimeList();
       } catch (error) {
         logger.error("Profile fetch error", error);
+        setLoading(false);
         navigate("/login");
       }
     };
@@ -120,9 +121,11 @@ const Dashboard = () => {
 
       const data = await response.json();
       setAnimeList(data);
+      setLoading(false);
     } catch (error) {
       logger.error("Fetch error:", error);
       setError("Failed to load anime list");
+      setLoading(false);
     }
   };
 
