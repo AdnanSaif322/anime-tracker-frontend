@@ -26,9 +26,11 @@ export const fetchWithAuth = async (
     });
 
     if (response.status === 401 && !skipAuth) {
-      const refreshed = await refreshAuthToken();
+      const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
+        credentials: "include",
+      });
 
-      if (refreshed) {
+      if (refreshResponse.ok) {
         response = await fetch(`${API_URL}${endpoint}`, {
           ...defaultOptions,
           ...fetchOptions,
