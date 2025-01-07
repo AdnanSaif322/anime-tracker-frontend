@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useDebounce } from "../hooks/useDebounce";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { AnimeSearchResult } from "../types/anime";
@@ -36,11 +36,16 @@ export default function AnimeSearch({ onSelect }: AnimeSearchProps) {
     }
   }, []);
 
+  useEffect(() => {
+    if (debouncedQuery) {
+      searchAnime(debouncedQuery);
+    }
+  }, [debouncedQuery, searchAnime]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
     setShowResults(true);
-    debouncedQuery(value);
   };
 
   const handleSelect = (anime: AnimeSearchResult) => {
