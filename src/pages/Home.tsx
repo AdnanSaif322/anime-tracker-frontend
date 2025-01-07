@@ -73,9 +73,10 @@ const Home = () => {
               <div className="bg-gray-800 p-6 rounded-lg shadow-lg relative flex flex-col justify-center min-h-[180px] border border-gray-700">
                 <div className="text-center">
                   <div className="text-4xl font-bold mb-2 text-purple-400">
-                    Imaginary
+                    Try Now!
                   </div>
-                  <p className="text-gray-300">Satisfied Users</p>
+                  <p className="text-gray-300">Email: demo@animetracker.com</p>
+                  <p className="text-gray-300">Password: demo123!</p>
                 </div>
               </div>
             </div>
@@ -101,7 +102,7 @@ const Home = () => {
       <footer className="bg-gray-800 border-t border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="text-center text-gray-400 text-sm">
-            <span>© 2024 AnimeTracker. Made with 💜</span>
+            <span>©AnimeTracker. Made with 💜</span>
           </div>
         </div>
       </footer>

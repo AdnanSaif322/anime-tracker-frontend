@@ -72,6 +72,16 @@ export default function Login() {
           </p>
         </div>
 
+        <div className="bg-gray-800 p-4 rounded-lg border border-purple-500/30">
+          <p className="text-purple-400 font-semibold mb-2">
+            Try Demo Account:
+          </p>
+          <div className="text-sm text-gray-300">
+            <p>Email: demo@animetracker.com</p>
+            <p>Password: demo123!</p>
+          </div>
+        </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
