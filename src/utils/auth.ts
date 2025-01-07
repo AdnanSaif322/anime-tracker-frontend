@@ -7,18 +7,13 @@ export const refreshAuthToken = async () => {
       credentials: "include",
     });
 
-    if (!response.ok) {
-      throw new Error("Token refresh failed");
-    }
-
-    return true;
+    return response.ok;
   } catch (error) {
     console.error("Token refresh error:", error);
     return false;
   }
 };
 
-// Add this to check auth status
 export const isAuthenticated = async () => {
   try {
     const response = await fetch(`${API_URL}/auth/profile`, {

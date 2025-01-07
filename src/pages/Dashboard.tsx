@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import AnimeSearch from "../components/AnimeSearch";
 import { AnimeCardSkeleton } from "../components/AnimeCardSkeleton";
 import { AnimeItem, AnimeStatus } from "../types/anime";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { AnimeCard } from "../components/AnimeCard";
 import Swal from "sweetalert2";
@@ -10,12 +9,6 @@ import { AnimeDetailsModal } from "../components/AnimeDetailsModal";
 import { API_URL } from "../config";
 import { logger } from "../utils/logger";
 import { fetchWithAuth } from "../utils/fetchWithAuth";
-
-interface DecodedToken {
-  email: string;
-  userId: string;
-  role: string;
-}
 
 const Dashboard = () => {
   const [animeList, setAnimeList] = useState<AnimeItem[]>([]);
@@ -32,21 +25,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
     const fetchProfile = async () => {
       try {
         logger.info("Fetching profile", { url: `${API_URL}/auth/profile` });
 
         const response = await fetch(`${API_URL}/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -79,16 +63,8 @@ const Dashboard = () => {
 
   const handleAnimeSelect = async (animeData: any) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        logger.error("No token found");
-        return;
-      }
-
-      // Log the exact request details
       logger.info("Adding anime request", {
         url: `${API_URL}/anime/add`,
-        token: token.substring(0, 20) + "...",
         animeData: {
           title: animeData.title,
           mal_id: animeData.mal_id,
@@ -97,9 +73,9 @@ const Dashboard = () => {
 
       const response = await fetch(`${API_URL}/anime/add`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: animeData.title,
@@ -180,12 +156,9 @@ const Dashboard = () => {
 
     if (result.isConfirmed) {
       try {
-        const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/anime/delete/${animeId}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -234,12 +207,11 @@ const Dashboard = () => {
   };
 
   const updateStatus = async (animeId: string, newStatus: AnimeStatus) => {
-    const token = localStorage.getItem("token");
     const response = await fetch(`${API_URL}/anime/status/${animeId}`, {
       method: "PATCH",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ status: newStatus }),
     });

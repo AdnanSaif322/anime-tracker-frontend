@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
 import { logger } from "../utils/logger";
-import { jwtDecode } from "jwt-decode";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -30,11 +29,6 @@ export default function Login() {
 
       if (!response.ok) {
         throw new Error(data.error || "Failed to login");
-      }
-
-      // Store token in localStorage as fallback
-      if (data.token) {
-        localStorage.setItem("auth_token", data.token);
       }
 
       navigate("/dashboard");
